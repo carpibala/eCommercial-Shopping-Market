@@ -1,3 +1,3 @@
 # eCommercial-Shopping-Market
 Like TaoBao, Amazon, Ebay...
-You can see Web Page in "Preview&instruction.pdf" file above.
+You can see Web Page Effect in "Preview&instruction.pdf" file above.
