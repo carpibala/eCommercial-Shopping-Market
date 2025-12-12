@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - TechStore</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="js/api.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .main-header {
+            background: rgba(15,15,15,0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #333;
+        }
+        .logo a { color:#00FFFF; font-size:1.8em; font-weight:bold; text-decoration:none; }
+        .main-nav ul { display:flex; list-style:none; gap:30px; }
+        .main-nav a { color:#ccc; transition:0.3s; text-decoration:none; }
+        .main-nav a:hover, .main-nav a.active { color:#00FFFF; }
+        .user-actions a { margin-left:15px; color:#aaa; text-decoration:none; }
+        .user-actions span { color:#00FFFF; }
+        #logoutBtn { color:#FF4700 !important; cursor:pointer; }
+
+        .page-title {
+            text-align:center;
+            font-size:3em;
+            margin:60px 0 40px;
+            color:#f0f0f0;
+            position:relative;
+        }
+        .page-title::after {
+            content:'';
+            position:absolute;
+            left:50%; bottom:-18px;
+            transform:translateX(-50%);
+            width:160px; height:6px;
+            background:#00FFFF;
+            border-radius:3px;
+            box-shadow:0 0 25px #00FFFF;
+        }
+
+        .container {
+            max-width:900px;
+            margin:0 auto;
+            padding:40px 20px;
+        }
+
+        .faq-item {
+            background:#181818;
+            margin:20px 0;
+            border-radius:16px;
+            padding:25px;
+            border:1px solid #333;
+            box-shadow:0 8px 25px rgba(0,0,0,0.4);
+            transition:all 0.3s;
+        }
+        .faq-item:hover {
+            border-color:#00FFFF;
+            box-shadow:0 15px 40px rgba(0,255,255,0.15);
+            transform:translateY(-5px);
+        }
+        .faq-item summary {
+            font-size:1.35em;
+            color:#00FFFF;
+            cursor:pointer;
+            font-weight:bold;
+            list-style:none;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+        .faq-item summary::after {
+            content:'+';
+            font-size:1.8em;
+            color:#00FFFF;
+            transition:0.3s;
+        }
+        .faq-item[open] summary::after {
+            content:'−';
+        }
+        .faq-item p {
+            margin-top:20px;
+            color:#ccc;
+            font-size:1.1em;
+            line-height:1.8;
+        }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <div class="logo"><a href="index.html">Super NiuBi Market</a></div>
+    <nav class="main-nav">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="help_faq.html" style="color:#00FFFF;">FAQ</a></li>
+            <li><a href="help_aftersales.html">After-Sales</a></li>
+        </ul>
+    </nav>
+    <div class="user-actions">
+        <!-- Will be replaced by JS -->
+        <a href="register.html">Register</a> / <a href="login.html">Login</a>
+        <a href="cart.html">Cart (<span id="cartCount">0</span>)</a>
+    </div>
+</header>
+
+<main>
+    <h1 class="page-title">FAQ</h1>
+
+    <div class="container">
+        <div class="faq-list">
+
+            <details class="faq-item" open>
+                <summary>When will the order be shipped?</summary>
+                <p>Orders will be shipped within 24 hours after payment (on business days). Delivery takes 1 day in Hong Kong and 2-3 days in Mainland China. Orders placed on weekends will be shipped on Monday.</p>
+            </details>
+
+            <details class="faq-item">
+                <summary>What payment methods are supported?</summary>
+                <p>Support：<br>• WeChat Pay<br>• Alipay<br>• Visa/MasterCard<br>• PayMe<br>• Octopus (Hong Kong local)</p>
+            </details>
+
+            <details class="faq-item">
+                <summary>Can you issue an invoice?</summary>
+                <p>Supports issuing electronic invoices. Simply check 'Need Invoice' when placing your order, and it will be automatically sent to your email once the order is completed.</p>
+            </details>
+
+            <details class="faq-item">
+                <summary>Do you support a 7-day no reason return?</summary>
+                <p>Support! Within 7 days after receiving the item, you can return it for any reason as long as the original packaging is intact (shipping costs are at your own expense). For quality issues, we offer free return and exchange.</p>
+            </details>
+
+            <details class="faq-item">
+                <summary>How long is the warranty?</summary>
+                <p>All products come with a 1-year official warranty. Electronic products such as keyboards, mice, and headphones are covered by nationwide warranty. If any issues arise, contact us directly for assistance.</p>
+            </details>
+
+            <details class="faq-item">
+                <summary>How do I contact customer service?</summary>
+                <p>Email：support@uowtech.hk（24小时内回复）<br>Instagram / WhatsApp：@uowtech_store</p>
+            </details>
+
+        </div>
+    </div>
+</main>
+
+<!-- Common login state script (included on all pages) -->
+<script>
+let currentUser = null;
+try {
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    if (token && userStr) {
+        currentUser = JSON.parse(userStr);
+    }
+} catch (e) {}
+
+// Update navigation bar
+function updateNav() {
+    const $actions = $('.user-actions');
+    if (currentUser) {
+        $actions.html(`
+            <span>Welcome, ${currentUser.name}</span>
+            <a href="cart.html">Cart (<span id="cartCount">0</span>)</a>
+            <a href="#" id="logoutBtn">Logout</a>
+        `);
+        $('#logoutBtn').click(e => {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            location.reload();
+        });
+    } else {
+        $actions.html(`
+            <a href="register.html">Register</a> / <a href="login.html">Login</a>
+            <a href="cart.html">Cart (<span id="cartCount">0</span>)</a>
+        `);
+    }
+}
+
+// Update cart count
+async function updateCartCount() {
+    if (!currentUser) {
+        $('#cartCount').text('0');
+        return;
+    }
+    try {
+        const cart = await API.get('/user/cart');
+        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        $('#cartCount').text(count);
+    } catch (err) {
+        $('#cartCount').text('0');
+    }
+}
+
+$(document).ready(function() {
+    updateNav();
+    updateCartCount();
+});
+</script>
+
+</body>
+</html>

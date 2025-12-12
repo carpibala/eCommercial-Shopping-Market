@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Center - TechStore</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="js/api.js"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:#0a0a0a;color:#e0e0e0;font-family:"Microsoft YaHei",Arial,sans-serif;}
+        .main-header{
+            background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);
+            padding:15px 5%;display:flex;justify-content:space-between;align-items:center;
+            position:sticky;top:0;z-index:100;border-bottom:1px solid #333;
+        }
+        .logo a{color:#00FFFF;font-size:1.8em;font-weight:bold;text-decoration:none;}
+        .main-nav a{color:#ccc;}
+        .main-nav a:hover{color:#00FFFF;}
+        .user-actions span{color:#00FFFF;}
+        #logoutBtn{color:#FF4700 !important;cursor:pointer;}
+
+        .dashboard-layout{display:flex;min-height:calc(100vh - 80px);background:#101010;}
+        .sidebar{width:260px;background:#181818;padding:20px 0;box-shadow:2px 0 10px rgba(0,0,0,0.5);}
+        .sidebar-title{color:#00FFFF;padding:15px 25px;font-weight:bold;border-bottom:1px solid #333;}
+        .menu-item{padding:14px 25px;color:#ccc;cursor:pointer;transition:all .3s;}
+        .menu-item:hover{background:#222;color:#FF4700;}
+        .menu-item.active{
+            background:#00FFFF;color:#000;font-weight:bold;position:relative;
+        }
+        .menu-item.active::after{
+            content:'';position:absolute;right:0;top:50%;transform:translateY(-50%);
+            width:5px;height:30px;background:#FF4700;
+        }
+
+        .dashboard-content{flex:1;padding:40px;}
+        .content-view{display:none;}
+        .content-view.active{display:block;animation:fadeIn .4s;}
+        @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+
+        h2{color:#00FFFF;font-size:2em;margin-bottom:30px;padding-bottom:10px;border-bottom:2px solid #333;}
+
+        .data-table{background:#181818;border-radius:16px;overflow:hidden;border:1px solid #333;}
+        .data-header,.data-row{
+            display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1.5fr;
+            padding:18px 20px;border-bottom:1px solid #282828;align-items:center;
+        }
+        .data-header{background:#111;color:#00FFFF;font-weight:bold;}
+        .data-row:hover{background:#1e1e1e;}
+        .product-info{display:flex;align-items:center;gap:15px;}
+        .product-info img{width:50px;height:50px;border-radius:8px;object-fit:cover;}
+        .status-online{color:#00FFFF;font-weight:bold;}
+        .status-offline{color:#999;}
+        .stock-low{color:#FF4700;font-weight:bold;}
+
+        .btn{
+            padding:8px 16px;border:none;border-radius:8px;font-weight:bold;
+            cursor:pointer;transition:all .3s;
+        }
+        .btn-edit{background:#444;color:white;}
+        .btn-edit:hover{background:#666;}
+        .btn-offline{background:#FF4700;color:white;}
+        .btn-online{background:#00FFFF;color:black;}
+        .btn:hover{transform:translateY(-2px);}
+
+        .product-form{
+            max-width:700px;background:#181818;padding:40px;border-radius:20px;
+            border:1px solid #333;box-shadow:0 15px 40px rgba(0,0,0,0.6);
+        }
+        .product-form input,.product-form textarea,.product-form select{
+            width:100%;padding:14px;margin:12px 0 20px;
+            background:#111;border:1px solid #444;border-radius:10px;color:white;font-size:1em;
+        }
+        .product-form input:focus,.product-form textarea:focus{
+            outline:none;border-color:#00FFFF;box-shadow:0 0 0 3px rgba(0,255,255,0.2);
+        }
+        .btn-submit{
+            background:#00FFFF;color:black;padding:16px;font-size:1.3em;
+            width:100%;border:none;border-radius:12px;font-weight:bold;cursor:pointer;
+            transition:.3s;
+        }
+        .btn-submit:hover{background:#00ffff;transform:translateY(-5px);}
+
+        #editModal{
+            display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+            background:rgba(0,0,0,0.9);justify-content:center;align-items:center;z-index:9999;
+        }
+        #editModal.active{display:flex;}
+        .modal-content{
+            background:#181818;padding:30px;border-radius:20px;width:500px;
+            border:1px solid #00FFFF;box-shadow:0 0 40px rgba(0,255,255,0.3);
+        }
+        .modal-content h3{color:#00FFFF;text-align:center;margin-bottom:20px;}
+        .modal-content input{
+            width:100%;padding:12px;margin:10px 0;background:#111;
+            border:1px solid #444;border-radius:8px;color:white;
+        }
+        .modal-buttons{display:flex;gap:15px;margin-top:25px;}
+        .modal-buttons button{flex:1;padding:12px;border:none;border-radius:10px;font-weight:bold;cursor:pointer;}
+        .btn-save{background:#00FFFF;color:black;}
+        .btn-cancel{background:#555;color:white;}
+
+        .toast{
+            position:fixed;bottom:30px;left:50%;transform:translateX(-50%);
+            background:rgba(0,255,255,0.15);color:#00FFFF;padding:15px 40px;
+            border-radius:50px;border:1px solid #00FFFF;backdrop-filter:blur(10px);
+            box-shadow:0 10px 30px rgba(0,255,255,0.3);z-index:9999;
+            opacity:0;transition:all .4s;pointer-events:none;
+        }
+        .toast.show{opacity:1;transform:translateX(-50%) translateY(-20px);}
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <div class="logo"><a href="index.html">Super NiuBi Market</a></div>
+    <nav class="main-nav">
+        <ul><li><a href="index.html">Back to Home</a></li></ul>
+    </nav>
+    <div class="user-actions">
+        <!-- Auto-filled by JS -->
+        <span id="shopName">Loading...</span>
+        <a href="#" id="logoutBtn">Logout</a>
+    </div>
+</header>
+
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <div class="sidebar-title">Product Management</div>
+        <div class="menu-item active" data-view="inventory">Inventory & Listing</div>
+        <div class="menu-item" data-view="add-product">Add New Product</div>
+        <div class="menu-item" data-view="orders">Order Management</div>
+    </aside>
+
+    <div class="dashboard-content">
+        <!-- Product List -->
+        <section id="inventory" class="content-view active">
+            <h2>Inventory & Listing Management</h2>
+            <div class="data-table">
+                <div class="data-header">
+                    <span>Product Info</span><span>Price</span><span>Stock</span><span>Status</span><span>Actions</span>
+                </div>
+                <div id="productList">
+                    <p style="padding:40px;text-align:center;color:#888;">Loading...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Add Product -->
+        <section id="add-product" class="content-view">
+            <h2>List New Product</h2>
+            <form class="product-form" id="productForm" enctype="multipart/form-data">
+                <input type="text" id="productName" placeholder="Product Name (Required)" required>
+                <input type="number" id="productPrice" placeholder="Price (e.g., 799)" step="0.01" required>
+                <input type="number" id="productStock" placeholder="Stock Quantity" required>
+                <select id="productCategory">
+                    <option value="keyboards">Mechanical Keyboards</option>
+                    <option value="mouses">Gaming Mice</option>
+                    <option value="headsets">Gaming Headsets</option>
+                    <option value="others">Other Accessories</option>
+                </select>
+                <textarea id="productDescription" placeholder="Product Description" rows="4"></textarea>
+                <input type="file" id="productImages" accept="image/*" style="margin:20px 0;">
+                <small style="color:#888;">Supports JPG, PNG, GIF, WebP formats, max 5MB</small>
+                <button type="submit" class="btn-submit">Confirm Listing</button>
+            </form>
+        </section>
+
+        <!-- Order Management (Simple Version) -->
+        <section id="orders" class="content-view">
+            <h2>Order Management</h2>
+            <p style="color:#888;">Feature under development... (Can be expanded later)</p>
+        </section>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal">
+    <div class="modal-content">
+        <h3>Edit Product</h3>
+        <input type="hidden" id="editId">
+        <input type="text" id="editName" placeholder="Product Name">
+        <input type="number" id="editPrice" placeholder="Price" step="0.01">
+        <input type="number" id="editStock" placeholder="Stock">
+        <div class="modal-buttons">
+            <button class="btn-save">Save</button>
+            <button class="btn-cancel">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== Login Verification + Permission Check ====================
+let currentUser = null;
+try {
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    if (token && userStr) {
+        currentUser = JSON.parse(userStr);
+        if (currentUser.role !== 'seller') {
+            alert('Access denied');
+            location.href = 'index.html';
+        }
+    } else {
+        alert('Please login first');
+        location.href = 'login.html';
+    }
+} catch (e) {
+    alert('Login session expired');
+    location.href = 'login.html';
+}
+
+// Update header shop name and logout
+function updateHeader() {
+    $('#shopName').text(currentUser?.companyName || currentUser?.name || 'Seller Center');
+    $('#logoutBtn').click(e => {
+        e.preventDefault();
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        location.href = 'index.html';
+    });
+}
+
+// ==================== Product Operations ====================
+let products = [];
+
+async function loadProducts() {
+    try {
+        const res = await API.get('/products?sellerId=' + currentUser.id);
+        products = res;
+        renderProducts();
+    } catch (err) {
+        console.error('Failed to load products:', err);
+        showToast('Failed to load products');
+    }
+}
+
+function renderProducts() {
+    const list = $('#productList');
+    list.empty();
+
+    if (products.length === 0) {
+        list.html('<p style="padding:60px;text-align:center;color:#666;">No products listed yet</p>');
+        return;
+    }
+
+    products.forEach(p => {
+        const statusText = p.status === 'published' ? 'On Sale' : 'Offline';
+        const statusClass = p.status === 'published' ? 'status-online' : 'status-offline';
+        const stockClass = p.stock <= 10 ? 'stock-low' : '';
+
+        const row = $(`
+            <div class="data-row">
+                <div class="product-info">
+                    <img src="${p.images?.[0]?.url || 'images/placeholder.png'}" onerror="this.src='images/placeholder.png'">
+                    <div>
+                        <div style="font-weight:bold;">${p.name}</div>
+                        <div style="font-size:0.9em;color:#888;">${p.description || 'No description'}</div>
+                    </div>
+                </div>
+                <span>¥${parseFloat(p.price).toFixed(2)}</span>
+                <span class="${stockClass}">${p.stock}</span>
+                <span class="${statusClass}">${statusText}</span>
+                <span>
+                    <button class="btn btn-edit" onclick="openEdit('${p.id}')">Edit</button>
+                    <button class="btn ${p.status==='published'?'btn-offline':'btn-online'} btn-toggle" data-id="${p.id}">
+                        ${p.status === 'published' ? 'Delist' : 'List'}
+                    </button>
+                </span>
+            </div>
+        `);
+        list.append(row);
+    });
+}
+
+// Toggle list/delist
+$(document).on('click', '.btn-toggle', async function() {
+    const id = $(this).data('id');
+    const product = products.find(p => p.id === id);
+    const newStatus = product.status === 'published' ? 'draft' : 'published';
+    
+    try {
+        await API.put(`/products/${id}/status`, { status: newStatus });
+        product.status = newStatus;
+        renderProducts();
+        showToast(newStatus === 'published' ? 'Product listed successfully' : 'Product delisted');
+    } catch (err) {
+        showToast('Operation failed');
+    }
+});
+
+// Edit modal
+window.openEdit = function(id) {
+    const p = products.find(x => x.id === id);
+    if (!p) return;
+    $('#editId').val(p.id);
+    $('#editName').val(p.name);
+    $('#editPrice').val(p.price);
+    $('#editStock').val(p.stock);
+    $('#editModal').addClass('active');
+};
+
+$('.btn-cancel').click(() => $('#editModal').removeClass('active'));
+$('.btn-save').click(async function() {
+    const id = $('#editId').val();
+    const updates = {
+        name: $('#editName').val().trim(),
+        price: parseFloat($('#editPrice').val()),
+        stock: parseInt($('#editStock').val())
+    };
+    if (!updates.name || isNaN(updates.price) || isNaN(updates.stock)) {
+        showToast('Please fill in all fields correctly');
+        return;
+    }
+    try {
+        await API.put(`/products/${id}`, updates);
+        loadProducts();
+        $('#editModal').removeClass('active');
+        showToast('Updated successfully');
+    } catch (err) {
+        showToast('Update failed');
+    }
+});
+
+// Add new product
+$('#productForm').submit(async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData();
+    formData.append('name', $('#productName').val().trim());
+    formData.append('price', $('#productPrice').val());
+    formData.append('stock', $('#productStock').val());
+    formData.append('category', $('#productCategory').val());
+    formData.append('description', $('#productDescription').val());
+
+    const files = $('#productImages')[0].files;
+    if (files.length > 0) {
+        formData.append('image', files[0]);
+    }
+
+    try {
+        const response = await fetch('http://localhost:3003/api/products', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+            body: formData
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Upload failed');
+        }
+        
+        showToast('Product listed successfully!');
+        this.reset();
+        loadProducts();
+        $('.menu-item[data-view="inventory"]').click();
+    } catch (err) {
+        console.error('Error:', err);
+        showToast('Failed: ' + err.message);
+    }
+});
+
+// Sidebar navigation
+$('.menu-item').click(function() {
+    $('.menu-item').removeClass('active');
+    $(this).addClass('active');
+    $('.content-view').removeClass('active');
+    $(`#${$(this).data('view')}`).addClass('active');
+    if ($(this).data('view') === 'inventory') loadProducts();
+});
+
+// Toast
+function showToast(msg) {
+    const t = $('#toast');
+    t.text(msg).addClass('show');
+    setTimeout(() => t.removeClass('show'), 3000);
+}
+
+// Init
+$(document).ready(function() {
+    updateHeader();
+    loadProducts();
+});
+</script>
+
+</body>
+</html>

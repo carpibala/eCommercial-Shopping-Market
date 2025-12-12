@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - Super NiuBi Market</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="js/api.js"></script>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{
+            background:#101010;color:#F0F0F0;
+            font-family:'Microsoft YaHei',Arial,sans-serif;
+            min-height:100vh;display:flex;flex-direction:column;
+        }
+        .main-header{
+            background:#1a1a1a;padding:15px 5%;display:flex;justify-content:space-between;align-items:center;
+            position:sticky;top:0;z-index:1000;box-shadow:0 2px 10px rgba(0,0,0,.5);backdrop-filter:blur(10px);
+        }
+        .logo{font-size:24px;font-weight:bold;color:#00FFFF;}
+        .main-nav ul{display:flex;gap:50px;list-style:none;}
+        .main-nav a{color:#e0e0e0;}
+        .main-nav a:hover{color:#00FFFF;}
+        .user-actions a{margin-left:25px;position:relative;display:inline-block;}
+        .cart-badge{
+            position:absolute;top:-8px;right:-12px;background:#FF4700;color:white;
+            width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+            font-size:12px;font-weight:bold;
+        }
+
+        /* Cart main container: left-right layout */
+        .cart-main{
+            display:flex;
+            gap:40px;
+            max-width:1400px;
+            margin:40px auto;
+            padding:0 5%;
+            flex:1;
+        }
+        .cart-left{
+            flex:1;
+            background:#181818;
+            border-radius:20px;
+            overflow:hidden;
+            box-shadow:0 10px 30px rgba(0,0,0,.6);
+        }
+        .cart-right{
+            width:380px;
+            background:#181818;
+            border-radius:20px;
+            padding:30px;
+            height:fit-content;
+            box-shadow:0 10px 30px rgba(0,0,0,.6);
+            position:sticky;
+            top:100px;
+        }
+
+        h1{
+            text-align:center;margin:40px 0 20px;color:#00FFFF;font-size:3em;
+        }
+
+        /* Product table */
+        .cart-table{width:100%;border-collapse:collapse;}
+        .cart-table th{
+            background:#111;color:#00FFFF;padding:20px;text-align:left;font-weight:bold;
+        }
+        .cart-item-row{
+            background:#1a1a1a;
+            border-bottom:1px solid #333;
+        }
+        .cart-item-row td{
+            padding:20px;vertical-align:middle;
+        }
+        .item-info{display:flex;align-items:center;gap:20px;}
+        .item-info img{width:80px;height:80px;object-fit:cover;border-radius:10px;}
+        .quantity-btn{
+            background:#333;color:white;width:36px;height:36px;
+            border:none;border-radius:8px;cursor:pointer;font-size:20px;
+        }
+        .quantity-input{
+            width:70px;padding:10px;text-align:center;background:#111;
+            border:1px solid #444;border-radius:8px;color:white;font-size:1.1em;
+        }
+        .item-total{color:#FF4700;font-weight:bold;font-size:1.3em;}
+        .remove-btn{color:#FF4700;cursor:pointer;font-weight:bold;}
+        .remove-btn:hover{text-decoration:underline;}
+
+        /* Right payment area */
+        .cart-summary h3{
+            color:#00FFFF;font-size:1.8em;margin-bottom:25px;text-align:center;
+        }
+        .summary-row{
+            display:flex;justify-content:space-between;padding:15px 0;
+            font-size:1.3em;border-bottom:1px dashed #444;
+        }
+        .summary-row.total{
+            font-size:1.8em;color:#00FFFF;font-weight:bold;margin-top:20px;
+            border:none;
+        }
+        .checkout-btn{
+            width:100%;margin-top:30px;
+            background:#00FFFF;color:black;padding:20px;
+            border:none;border-radius:16px;font-size:1.6em;
+            font-weight:bold;cursor:pointer;transition:.3s;
+        }
+        .checkout-btn:hover{
+            background:#00ffff;transform:translateY(-5px);
+            box-shadow:0 15px 30px rgba(0,255,255,.4);
+        }
+
+        .empty-cart{
+            text-align:center;padding:120px 20px;font-size:1.6em;color:#666;
+        }
+
+        .main-footer{
+            background:#0d0d0d;padding:60px 20px;text-align:center;
+            border-top:1px solid #333;margin-top:auto;
+        }
+        .main-footer p{margin:12px 0;color:#888;}
+        .main-footer p:first-child{color:#00FFFF;font-size:1.4em;font-weight:bold;}
+
+        /* Mobile: vertical layout */
+        @media (max-width: 968px) {
+            .cart-main{flex-direction:column;}
+            .cart-right{width:100%;position:static;}
+        }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <div class="logo"><a href="index.html">Super NiuBi Market</a></div>
+    <nav class="main-nav">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="about.html">About</a></li>
+        </ul>
+    </nav>
+    <div class="user-actions">
+        <a href="cart.html">
+            Cart (<span id="cartNum">0</span>)
+            <span class="cart-badge" id="cartBadge" style="display:none;">0</span>
+        </a>
+    </div>
+</header>
+
+<h1>My Shopping Cart</h1>
+
+<div class="cart-main">
+    <!-- Left: Product List -->
+    <div class="cart-left">
+        <table class="cart-table">
+            <thead>
+                <tr>
+                    <th style="width:40%;">Product Info</th>
+                    <th style="width:15%;">Unit Price</th>
+                    <th style="width:20%;">Quantity</th>
+                    <th style="width:15%;">Subtotal</th>
+                    <th style="width:10%;">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="cartItems"></tbody>
+        </table>
+
+        <div id="emptyMsg" class="empty-cart">
+            Cart is empty. <a href="index.html" style="color:#00FFFF;">Let's pick up</a>!
+        </div>
+    </div>
+
+    <!-- 右边：付款总计 -->
+    <div class="cart-right">
+        <div class="cart-summary">
+            <h3>订单摘要</h3>
+            <div class="summary-row">
+                <span>商品总额</span>
+                <span id="subtotal">¥ 0.00</span>
+            </div>
+            <div class="summary-row">
+                <span>优惠金额</span>
+                <span>- ¥ 0.00</span>
+            </div>
+            <div class="summary-row total">
+                <span>应付总额</span>
+                <span id="checkoutTotal">¥ 0.00</span>
+            </div>
+            <button class="checkout-btn" id="checkoutBtn">去结算</button>
+        </div>
+    </div>
+</div>
+
+<footer class="main-footer">
+    <p>© ZhengJieRong & WuYuHan</p>
+    <p>H10008148 & H10007771</p>
+    <p>Web Programming Final Project • UOW College Hong Kong</p>
+</footer>
+
+<script>
+// ==================== 通用登录态处理（所有页面都加这部分）====================
+let currentUser = null;
+let cartCount = 0;
+
+try {
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    if (token && userStr) {
+        currentUser = JSON.parse(userStr);
+    }
+} catch (e) {}
+
+const privatePages = ['cart.html','checkout.html','seller_dashboard.html','order.html','profile.html'];
+if (privatePages.includes(location.pathname.split('/').pop()) && !currentUser) {
+    alert('请先登录');
+    location.href = 'login.html';
+}
+
+function updateNav() {
+    if (currentUser) {
+        document.querySelector('.user-actions').innerHTML = `
+            <span style="color:#00FFFF;">欢迎，${currentUser.name}</span>
+            <a href="cart.html">购物车 (<span id="cartCount">0</span>)</a>
+            <a href="#" id="logoutBtn" style="color:#FF4700;margin-left:15px;">退出</a>
+        `;
+        document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            location.href = 'index.html';
+        });
+    } else {
+        document.querySelector('.user-actions').innerHTML = `
+            <a href="register.html">注册</a> / <a href="login.html">登录</a>
+            <a href="cart.html">购物车 (<span id="cartCount">0</span>)</a>
+        `;
+    }
+}
+
+async function updateCartCount() {
+    if (!currentUser) {
+        document.querySelectorAll('#cartCount').forEach(el => el.textContent = '0');
+        return;
+    }
+    try {
+        const cart = await API.get('/user/cart');
+        cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+        document.querySelectorAll('#cartCount').forEach(el => el.textContent = cartCount);
+    } catch (err) {
+        console.log('获取购物车失败');
+    }
+}
+
+// ==================== 真实购物车渲染逻辑 ====================
+let cartData = [];
+
+async function loadCart() {
+    try {
+        cartData = await API.get('/user/cart');
+        renderCart();
+        updateCartCount();
+    } catch (err) {
+        alert('加载购物车失败');
+    }
+}
+
+function renderCart() {
+    const $tbody = $('#cartItems');
+    $tbody.empty();
+
+    if (cartData.length === 0) {
+        $('#emptyMsg').show();
+        $('.cart-right').hide();
+        return;
+    }
+
+    $('#emptyMsg').hide();
+    $('.cart-right').show();
+
+    let subtotal = 0;
+    cartData.forEach(item => {
+        const itemTotal = item.price * item.quantity;
+        subtotal += itemTotal;
+
+        const row = $(`
+            <tr class="cart-item-row" data-id="${item.productId}">
+                <td class="item-info">
+                    <img src="${item.image || 'images/微信图片_20251206235409.png'}">
+                    <div>
+                        <div style="font-weight:bold;font-size:1.1em;">${item.name}</div>
+                        ${item.specs ? `<div style="color:#888;font-size:0.9em;">规格: ${JSON.stringify(item.specs)}</div>` : ''}
+                    </div>
+                </td>
+                <td>¥ ${item.price.toFixed(2)}</td>
+                <td>
+                    <button class="quantity-btn minus">-</button>
+                    <input type="text" class="quantity-input" value="${item.quantity}" readonly>
+                    <button class="quantity-btn plus">+</button>
+                </td>
+                <td class="item-total">¥ ${itemTotal.toFixed(2)}</td>
+                <td><span class="remove-btn">删除</span></td>
+            </tr>
+        `);
+        $tbody.append(row);
+    });
+
+    $('#subtotal').text(`¥ ${subtotal.toFixed(2)}`);
+    $('#checkoutTotal').text(`¥ ${subtotal.toFixed(2)}`);
+}
+
+// 修改数量
+$(document).on('click', '.quantity-btn', async function() {
+    const $row = $(this).closest('tr');
+    const productId = $row.data('id');
+    const isPlus = $(this).hasClass('plus');
+    
+    const item = cartData.find(i => i.productId === productId);
+    if (isPlus) {
+        item.quantity++;
+    } else if (item.quantity > 1) {
+        item.quantity--;
+    } else {
+        if (confirm('确定删除此商品？')) {
+            cartData = cartData.filter(i => i.productId !== productId);
+        } else {
+            return;
+        }
+    }
+
+    await API.put('/user/cart', { cart: cartData });
+    renderCart();
+    updateCartCount();
+});
+
+// 删除
+$(document).on('click', '.remove-btn', async function() {
+    if (!confirm('确定删除此商品？')) return;
+    const productId = $(this).closest('tr').data('id');
+    cartData = cartData.filter(i => i.productId !== productId);
+    await API.put('/user/cart', { cart: cartData });
+    renderCart();
+    updateCartCount();
+});
+
+// 去结算
+$('#checkoutBtn').click(function() {
+    if (cartData.length === 0) {
+        alert('购物车为空！');
+        return;
+    }
+    location.href = 'checkout.html';
+});
+
+// 初始化
+$(document).ready(function() {
+    updateNav();
+    loadCart();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Login - Super NiuBi Market</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="js/api.js"></script> <!-- Must be placed after jQuery -->
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{
+            background:#101010;color:#F0F0F0;
+            font-family:'Microsoft YaHei',Arial,sans-serif;
+            min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+        }
+        .main-header{
+            position:absolute;top:0;width:100%;
+            background:#1a1a1a;padding:18px 5%;display:flex;justify-content:space-between;align-items:center;
+            box-shadow:0 2px 15px rgba(0,0,0,.6);backdrop-filter:blur(10px);
+        }
+        .logo{font-size:28px;font-weight:bold;color:#00FFFF;text-decoration:none;}
+
+        h1{
+            font-size:3.5em;color:#00FFFF;text-align:center;margin-bottom:50px;
+            text-shadow:0 0 30px rgba(0,255,255,.8);
+        }
+
+        .login-container{
+            background:#181818;width:480px;border-radius:28px;padding:50px 40px;
+            box-shadow:0 20px 60px rgba(0,255,255,.15),0 0 80px rgba(0,255,255,.1);
+            border:1px solid #333;position:relative;overflow:hidden;
+        }
+        .login-container::before{
+            content:'';position:absolute;inset:0;
+            background:linear-gradient(45deg,transparent 30%,rgba(0,255,255,.03) 50%,transparent 70%);
+            pointer-events:none;
+        }
+
+        .role-selector{
+            display:flex;margin-bottom:40px;border-radius:16px;overflow:hidden;
+            border:1px solid #444;width:100%;
+        }
+        .role-btn{
+            flex:1;padding:18px;background:#222;color:#ccc;
+            font-size:1.2em;font-weight:bold;cursor:pointer;transition:all .4s;
+        }
+        .role-btn.active{
+            background:#00FFFF;color:#000;box-shadow:0 0 20px rgba(0,255,255,.6);
+        }
+        .role-btn:not(.active):hover{background:#333;color:#FF4700;}
+
+        .auth-form{display:none;}
+        .auth-form.active{display:block;animation:fadeIn .5s;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+        .auth-form label{
+            display:block;margin:25px 0 10px;font-size:1.1em;color:#aaa;
+        }
+        .auth-form input{
+            width:100%;padding:16px;background:#111;border:1px solid #444;
+            border-radius:12px;color:white;font-size:1.1em;transition:border .3s;
+        }
+        .auth-form input:focus{
+            outline:none;border-color:#00FFFF;box-shadow:0 0 0 4px rgba(0,255,255,.2);
+        }
+
+        .form-links{text-align:center;margin:25px 0;}
+        .form-links a{color:#00FFFF;font-size:1.05em;}
+        .form-links a:hover{color:#ff00aa;}
+
+        .btn-submit-form{
+            width:100%;margin-top:35px;padding:18px;
+            background:linear-gradient(135deg,#00FFFF,#00f7ff);color:#000;
+            border:none;border-radius:16px;font-size:1.5em;font-weight:bold;
+            cursor:pointer;transition:all .4s;box-shadow:0 8px 25px rgba(0,255,255,.4);
+        }
+        .btn-submit-form:hover{
+            transform:translateY(-5px);box-shadow:0 15px 40px rgba(0,255,255,.6);
+        }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <div class="logo"><a href="index.html">Super NiuBi Market</a></div>
+</header>
+
+<h1>Account Login</h1>
+
+<div class="login-container">
+    <div class="role-selector">
+        <button type="button" id="buyerLoginBtn" class="role-btn active">Buyer Login</button>
+        <button type="button" id="sellerLoginBtn" class="role-btn">Seller Login</button>
+    </div>
+
+    <!-- Buyer Login -->
+    <form id="buyerLoginForm" class="auth-form active">
+        <label>Username / Email</label>
+        <input type="text" id="buyerIdentifier" required placeholder="Enter username or email">
+        <label>Password</label>
+        <input type="password" id="buyerPassword" required placeholder="Enter password">
+        <div class="form-links">
+            <a href="register.html">Don't have an account? Register now →</a>
+        </div>
+        <button type="submit" class="btn-submit-form">Buyer Login</button>
+    </form>
+
+    <!-- Seller Login -->
+    <form id="sellerLoginForm" class="auth-form">
+        <label>Seller Email</label>
+        <input type="email" id="sellerEmail" required placeholder="Enter registered email">
+        <label>Password</label>
+        <input type="password" id="sellerPassword" required placeholder="Enter password">
+        <div class="form-links">
+            <a href="register.html">Don't have an account? Register now →</a>
+        </div>
+        <button type="submit" class="btn-submit-form">Seller Login</button>
+    </form>
+</div>
+
+<script>
+// Unified login success handler
+function saveLogin(data) {
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    alert('Login successful! Welcome ' + data.user.name);
+
+    if (data.user.role === 'seller') {
+        location.href = 'seller_dashboard.html';
+    } else {
+        location.href = 'index.html';
+    }
+}
+
+// Buyer login (Fixed critical bug!)
+$('#buyerLoginForm').submit(async function(e) {
+    e.preventDefault();
+    const identifier = $('#buyerIdentifier').val().trim();  // Correct value retrieval!
+    const password = $('#buyerPassword').val();
+
+    if (!identifier || !password) {
+        alert('Please fill in all fields');
+        return;
+    }
+
+    try {
+        const data = await API.post('/auth/login', { email: identifier, password });
+        saveLogin(data);
+    } catch (err) {
+        alert(err.message || 'Login failed, please check your username/email and password');
+    }
+});
+
+// Seller login
+$('#sellerLoginForm').submit(async function(e) {
+    e.preventDefault();
+    const email = $('#sellerEmail').val().trim();
+    const password = $('#sellerPassword').val();
+
+    if (!email || !password) {
+        alert('Please fill in all fields');
+        return;
+    }
+
+    try {
+        const data = await API.post('/auth/login', { email, password });
+        saveLogin(data);
+    } catch (err) {
+        alert(err.message || 'Login failed, please check your email and password');
+    }
+});
+
+// Role switching
+$(document).ready(function() {
+    $('#buyerLoginBtn').click(function(){
+        $('.role-btn').removeClass('active');
+        $(this).addClass('active');
+        $('.auth-form').removeClass('active');
+        $('#buyerLoginForm').addClass('active');
+    });
+    $('#sellerLoginBtn').click(function(){
+        $('.role-btn').removeClass('active');
+        $(this).addClass('active');
+        $('.auth-form').removeClass('active');
+        $('#sellerLoginForm').addClass('active');
+    });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于我们 - 香港伍伦贡学院科技购物平台</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="js/api.js"></script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            background: #0a0a0a;
+            color: #e0e0e0;
+            font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+            line-height: 1.8;
+        }
+        a { text-decoration: none; }
+
+        /* 头部 */
+        .main-header {
+            background: rgba(15,15,15,0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #333;
+        }
+        .logo a { color:#00FFFF; font-size:1.8em; font-weight:bold; }
+        .main-nav ul { display:flex; list-style:none; gap:30px; }
+        .main-nav a { color:#ccc; transition:0.3s; }
+        .main-nav a:hover, .main-nav a[style*="00FFFF"] { color:#00FFFF; }
+        .user-actions a { margin-left:15px; color:#aaa; }
+
+        .page-title {
+            text-align:center;
+            font-size:3em;
+            margin:60px 0 20px;
+            color:#f0f0f0;
+            position:relative;
+        }
+        .page-title::after {
+            content:'';
+            position:absolute;
+            left:50%; bottom:-18px;
+            transform:translateX(-50%);
+            width:140px; height:6px;
+            background:#00FFFF;
+            border-radius:3px;
+            box-shadow:0 0 25px #00FFFF;
+        }
+
+        .about-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px 120px;
+        }
+
+        .intro-section {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+        .intro-section h2 {
+            font-size: 2.2em;
+            color: #00FFFF;
+            margin: 50px 0 25px;
+        }
+        .intro-section p {
+            font-size: 1.15em;
+            color: #bbb;
+            max-width: 900px;
+            margin: 0 auto;
+            line-height: 2;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin: 80px 0;
+        }
+        .team-card {
+            background: #181818;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #333;
+            transition: all 0.4s;
+        }
+        .team-card:hover {
+            transform: translateY(-15px);
+            border-color: #00FFFF;
+            box-shadow: 0 20px 40px rgba(0,255,255,0.2);
+        }
+        .team-card img { width:100%; height:320px; object-fit:cover; }
+        .team-info { padding:20px; text-align:center; }
+        .team-info h3 { color:#00FFFF; font-size:1.4em; margin-bottom:8px; }
+        .team-info p { color:#FF4700; font-weight:bold; }
+
+        /* ==================== 新增：完整联系方式模块 ==================== */
+        .contact-section {
+            background: linear-gradient(135deg, #181818, #111);
+            border-radius: 24px;
+            padding: 70px 40px;
+            text-align: center;
+            border: 1px solid #333;
+            margin-top: 100px;
+        }
+        .contact-section h2 {
+            font-size: 2.8em;
+            color: #00FFFF;
+            margin-bottom: 60px;
+            text-shadow: 0 0 20px rgba(0,255,255,0.5);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 50px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .contact-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .contact-icon {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 15px 0;
+            filter: drop-shadow(0 0 15px rgba(0,255,255,0.4));
+        }
+
+        .qrcode {
+            width: 180px;
+            height: 180px;
+            border-radius: 20px;
+            border: 4px solid #00FFFF;
+            box-shadow: 0 0 30px rgba(0,255,255,0.5);
+            transition: transform 0.3s;
+        }
+        .qrcode:hover {
+            transform: scale(1.1);
+        }
+
+        .contact-item p {
+            margin-top: 15px;
+            font-size: 1.2em;
+            color: #ccc;
+        }
+        .contact-item strong {
+            color: #FF4700;
+            font-size: 1.3em;
+        }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <div class="logo"><a href="index.html"></a></div>
+    <nav class="main-nav">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="#">Helping center</a></li>
+        </ul>
+    </nav>
+    <div class="user-actions">
+        <a href="register.html">register</a> / <a href="login.html">Login</a>
+        <a href="cart.html">Shopping Cart (<span id="cartCount">0</span>)</a>
+    </div>
+</header>
+
+<main>
+    <h1 class="page-title">About Us</h1>
+
+    <div class="about-container">
+
+        <section class="intro-section">
+            <h2>Hong Kong Wollongong College · Simulated Shopping Platform</h2>
+            <p>
+                We are two students From Facult of Science and Technology<strong>UOW College Hong Kong.</strong> <br>
+                This project is the final assignment for the 'Web Programming' course.<br><br><br>
+                
+            </p>
+        </section>
+
+        <section class="team-grid">
+            <div class="team-card">
+                <div class="team-info">
+                    <h3>Wu Yuhan</h3>
+                    <p>Frontend design + Algorithm Optimization</p>
+                </div>
+            </div>
+            <div class="team-card">
+                <div class="team-info">
+                    <h3>Zheng Jierong</h3>
+                    <p>JavaScript Logic + Backend design</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 联系我们（新增6张图） -->
+        <section class="contact-section">
+            <h2>Contact Us</h2>
+
+            <div class="contact-grid">
+
+                <!-- Instagram -->
+                <div class="contact-item">
+                    <img src="images/instagram.png" alt="Instagram" class="contact-icon">
+                    <p>Instagram</p>
+                    <img src="images/igQRcode.jpg" alt="Instagram QR" class="qrcode">
+                    <p><strong>@carpibalalala</strong></p>
+                </div>
+
+                <!-- WeChat -->
+                <div class="contact-item">
+                    <img src="images/wechat.png" alt="WeChat" class="contact-icon">
+                    <p>WeChat</p>
+                    <img src="images/wechatQRcode.jpg" alt="WeChat QR" class="qrcode">
+                    <p><strong>V: h22511330297</strong></p>
+                </div>
+
+                <!-- WhatsApp -->
+                <div class="contact-item">
+                    <img src="images/whatsApp.png" alt="WhatsApp" class="contact-icon">
+                    <p>WhatsApp</p>
+                    <img src="images/wtsQRcode.jpg" alt="WhatsApp QR" class="qrcode">
+                    <p><strong>+852 5956-4590</strong></p>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+</main>
+
+<script>
+// ==================== 通用登录态处理（所有页面都加这部分）====================
+let currentUser = null;
+let cartCount = 0;
+
+// 尝试读取登录信息（不会报错）
+try {
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    if (token && userStr) {
+        currentUser = JSON.parse(userStr);
+    }
+} catch (e) {}
+
+// 如果是这些私有页面 → 没登录就踢走
+const privatePages = [
+    'cart.html',
+    'checkout.html',
+    'seller_dashboard.html',
+    'order.html',
+    'profile.html'  // 你以后可能会加的页面
+];
+if (privatePages.includes(location.pathname.split('/').pop()) && !currentUser) {
+    alert('请先登录');
+    location.href = 'login.html';
+}
+
+// 更新导航栏：已登录 → 显示用户名 + 退出；未登录 → 显示登录/注册
+function updateNav() {
+    const loginLink = document.querySelector('.user-actions a[href="login.html"]');
+    const regLink = document.querySelector('.user-actions a[href="register.html"]');
+    const cartLink = document.querySelector('.user-actions a[href="cart.html"]');
+
+    if (currentUser) {
+        // 已登录：替换成用户名 + 退出按钮
+        document.querySelector('.user-actions').innerHTML = `
+            <span style="color:#00FFFF;">欢迎，${currentUser.name}</span>
+            <a href="cart.html">购物车 (<span id="cartCount">0</span>)</a>
+            <a href="#" id="logoutBtn" style="color:#FF4700;margin-left:15px;">退出</a>
+        `;
+
+        document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            location.href = 'index.html';
+        });
+    } else {
+        // 未登录：显示登录注册
+        document.querySelector('.user-actions').innerHTML = `
+            <a href="register.html">Register</a> / <a href="login.html">Login</a>
+            <a href="cart.html">Shopping Cart(<span id="cartCount">0</span>)</a>
+        `;
+    }
+}
+
+// 从后端获取真实购物车数量并更新角标
+async function updateCartCount() {
+    if (!currentUser) {
+        document.querySelectorAll('#cartCount').forEach(el => el.textContent = '0');
+        return;
+    }
+    try {
+        const cart = await API.get('/user/cart');
+        cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+        document.querySelectorAll('#cartCount').forEach(el => el.textContent = cartCount);
+    } catch (err) {
+        console.log('获取购物车失败（可能未登录）');
+    }
+}
+
+// 页面加载完执行
+$(document).ready(function() {
+    updateNav();        // 更新导航栏登录状态
+    updateCartCount(); // 更新购物车角标（真实后端数据）
+});
+</script>
+
+</body>
+</html>

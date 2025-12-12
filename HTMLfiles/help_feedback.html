@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>意见反馈 - TechStore</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="js/api.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .main-header {
+            background: rgba(15,15,15,0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #333;
+        }
+        .logo a { color:#00FFFF; font-size:1.8em; font-weight:bold; text-decoration:none; }
+        .main-nav ul { display:flex; list-style:none; gap:30px; }
+        .main-nav a { color:#ccc; transition:0.3s; text-decoration:none; }
+        .main-nav a:hover, .main-nav a.active { color:#00FFFF; }
+        .user-actions a { margin-left:15px; color:#aaa; text-decoration:none; }
+        .user-actions span { color:#00FFFF; }
+        #logoutBtn { color:#FF4700 !important; cursor:pointer; }
+
+        .page-title {
+            text-align:center;
+            font-size:3em;
+            margin:60px 0 40px;
+            color:#f0f0f0;
+            position:relative;
+        }
+        .page-title::after {
+            content:'';
+            position:absolute;
+            left:50%; bottom:-18px;
+            transform:translateX(-50%);
+            width:160px; height:6px;
+            background:#00FFFF;
+            border-radius:3px;
+            box-shadow:0 0 25px #00FFFF;
+        }
+
+        .feedback-container {
+            max-width:700px;
+            margin:0 auto;
+            padding:20px;
+        }
+        .feedback-card {
+            background:#181818;
+            padding:45px;
+            border-radius:24px;
+            border:1px solid #333;
+            box-shadow:0 15px 40px rgba(0,0,0,0.6);
+        }
+        .feedback-card input,
+        .feedback-card textarea {
+            width:100%;
+            padding:16px;
+            margin:12px 0;
+            background:#111;
+            border:1px solid #444;
+            border-radius:12px;
+            color:white;
+            font-size:1.1em;
+            font-family:inherit;
+        }
+        .feedback-card input::placeholder,
+        .feedback-card textarea::placeholder {
+            color:#777;
+        }
+        .feedback-card textarea {
+            min-height:180px;
+            resize:vertical;
+        }
+        .submit-btn {
+            background:#00FFFF;
+            color:#000;
+            padding:18px 50px;
+            border:none;
+            border-radius:16px;
+            font-size:1.3em;
+            font-weight:bold;
+            cursor:pointer;
+            margin-top:20px;
+            width:100%;
+            transition:.3s;
+        }
+        .submit-btn:hover {
+            background:#00ffff;
+            transform:translateY(-5px);
+            box-shadow:0 15px 35px rgba(0,255,255,.4);
+        }
+        .submit-btn:disabled {
+            background:#006666;
+            cursor:not-allowed;
+            transform:none;
+        }
+        #msg {
+            text-align:center;
+            margin-top:25px;
+            font-size:1.3em;
+            min-height:40px;
+        }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <div class="logo"><a href="index.html">Super NiuBi Market</a></div>
+    <nav class="main-nav">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="help_faq.html">FAQ</a></li>
+            <li><a href="help_feedback.html" style="color:#00FFFF;">Feedback</a></li>
+        </ul>
+    </nav>
+    <div class="user-actions">
+        <a href="register.html">Register</a> / <a href="login.html">Login</a>
+        <a href="cart.html">Shopping Cart (<span id="cartCount">0</span>)</a>
+    </div>
+</header>
+
+<main>
+    <h1 class="page-title">Feedback</h1>
+
+    <div class="feedback-container">
+        <div class="feedback-card">
+            <form id="feedbackForm">
+                <input type="text" id="name" placeholder="Name:(optional)">
+                <input type="email" id="email" placeholder="email" required>
+                <textarea id="content" placeholder="Your Feedback" required></textarea>
+                <button type="submit" class="submit-btn">Submit Feedback</button>
+            </form>
+            <p id="msg"></p>
+        </div>
+    </div>
+</main>
+
+<!-- 通用登录态 + 真实提交反馈 -->
+<script>
+let currentUser = null;
+try {
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    if (token && userStr) currentUser = JSON.parse(userStr);
+} catch (e) {}
+
+// 更新导航栏
+function updateNav() {
+    const $actions = $('.user-actions');
+    if (currentUser) {
+        $actions.html(`
+            <span>欢迎，${currentUser.name}</span>
+            <a href="cart.html">购物车 (<span id="cartCount">0</span>)</a>
+            <a href="#" id="logoutBtn">退出</a>
+        `);
+        $('#logoutBtn').click(e => {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            location.reload();
+        });
+    } else {
+        $actions.html(`
+            <a href="register.html">Register</a> / <a href="login.html">Login</a>
+            <a href="cart.html">Shopping Cart(<span id="cartCount">0</span>)</a>
+        `);
+    }
+}
+
+// 更新购物车数量
+async function updateCartCount() {
+    if (!currentUser) {
+        $('#cartCount').text('0');
+        return;
+    }
+    try {
+        const cart = await API.get('/user/cart');
+        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        $('#cartCount').text(count);
+    } catch (err) {
+        $('#cartCount').text('0');
+    }
+}
+
+// 提交反馈到后端（真实发送！）
+$('#feedbackForm').submit(async function(e) {
+    e.preventDefault();
+    
+    const name = $('#name').val().trim() || '匿名用户';
+    const email = $('#email').val().trim();
+    const content = $('#content').val().trim();
+
+    if (!email || !content) {
+        $('#msg').text('请Enter your email and feedback').css('color', '#FF4700');
+        return;
+    }
+
+    const btn = $(this).find('.submit-btn');
+    btn.prop('disabled', true).text('submitting');
+
+    try {
+        // 调用后端接口（我给你写好路由了，放心用）
+        await API.post('/feedback', { name, email, content });
+        $('#msg').text('Thank for your feedback').css('color', '#00FFFF');
+        this.reset();
+    } catch (err) {
+        $('#msg').text('Submit failed').css('color', '#FF4700');
+    } finally {
+        btn.prop('disabled', false).text('submit');
+    }
+});
+
+$(document).ready(function() {
+    updateNav();
+    updateCartCount();
+});
+</script>
+
+</body>
+</html>

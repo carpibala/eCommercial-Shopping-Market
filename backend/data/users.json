@@ -1,0 +1,115 @@
+[
+  {
+    "id": "174c07ff-ae6d-4f66-9562-df4df50649f9",
+    "name": "yuhan",
+    "email": "123@qq.com",
+    "password": "$2a$10$qNkrZfyEkrWf8oHdwGw.IOdvnL7.LFuoCOVqPHbOdAQCoEdxmCmly",
+    "role": "user",
+    "cart": [],
+    "favorites": [],
+    "createdAt": "2025-12-10T09:11:14.664Z"
+  },
+  {
+    "id": "4a696c29-3d8e-4146-93a7-f3ebadb74d6f",
+    "name": "????",
+    "email": "seller@test.com",
+    "password": "$2a$10$iOUjwdhlXtGqvY2GeZzedOdkmOtSuD.1NSN6M/je/NX6KT93ijUY.",
+    "role": "seller",
+    "companyName": "????????",
+    "license": "12345678",
+    "cart": [],
+    "favorites": [],
+    "createdAt": "2025-12-11T02:22:27.283Z",
+    "updatedAt": "2025-12-11T02:22:27.283Z"
+  },
+  {
+    "id": "764969ab-b9ed-4670-ba68-cf870f9ec990",
+    "name": "jierong",
+    "email": "123@gmail.com",
+    "password": "$2a$10$OP6BJtTOB0hwAHiRAUB4deISGT00xSxYHX1jzaTk28iUaVJ2xKODW",
+    "role": "user",
+    "cart": [
+      {
+        "productId": "adb468dc-d3e1-4a63-ba73-b36a6ef777e6",
+        "name": "iPhone 17 PRO MAX (512G)",
+        "price": 11888,
+        "image": "/uploads/b7d79bff8af0121f3284c47940048efe",
+        "specs": {},
+        "quantity": 1
+      }
+    ],
+    "favorites": [],
+    "createdAt": "2025-12-11T02:31:00.640Z",
+    "updatedAt": "2025-12-11T14:25:19.245Z"
+  },
+  {
+    "id": "cca63967-b566-4016-8646-41a5445742af",
+    "name": "testing",
+    "email": "testing@test.com",
+    "password": "$2a$10$NZzG9B7ioiJuxm5uADizMuYMhtvqk3eduwW./tcxKHnuSUda7q0S6",
+    "role": "seller",
+    "companyName": "testing",
+    "license": "123",
+    "cart": [
+      {
+        "productId": "0a523129-e7e9-44cc-aacd-68af911a0c1f",
+        "name": "Mouse",
+        "price": 100,
+        "image": "/uploads/26f26c4472838cbc8033da74a1b4e9bc",
+        "specs": {},
+        "quantity": 1
+      }
+    ],
+    "favorites": [],
+    "createdAt": "2025-12-11T02:32:24.050Z",
+    "updatedAt": "2025-12-11T07:09:45.248Z"
+  },
+  {
+    "id": "74745882-9b1d-415e-be61-9c0790719e4b",
+    "name": "shop1",
+    "email": "1234@gmail.com",
+    "password": "$2a$10$yqiacYfy0eqUxErBOqNwpen6u/cPB7hPn/8/q0n8hCSZScybTjo6q",
+    "role": "seller",
+    "companyName": "shop1",
+    "license": "1116362693",
+    "cart": [],
+    "favorites": [],
+    "createdAt": "2025-12-11T06:46:43.879Z",
+    "updatedAt": "2025-12-11T06:46:43.879Z"
+  },
+  {
+    "id": "b58b419c-71eb-4209-bfb2-744f60945572",
+    "name": "shop2",
+    "email": "123@example.com",
+    "password": "$2a$10$vUCPoDHHoHwTLxBTGmiNiuS7KVloTVDVl5fTOfbzsKVn4dHQEjCIu",
+    "role": "seller",
+    "companyName": "shop2",
+    "license": "12345678",
+    "cart": [],
+    "favorites": [],
+    "createdAt": "2025-12-11T07:16:03.335Z",
+    "updatedAt": "2025-12-11T07:16:03.335Z"
+  },
+  {
+    "id": "fbcba3b3-311d-4075-a16e-733c2042aba8",
+    "name": "user123",
+    "email": "8888@emample.com",
+    "password": "$2a$10$H.5MlDFcpy19pwCk63vBAex29z3C/hgDytNbF4juDcOcVfIj.D78C",
+    "role": "user",
+    "cart": [],
+    "favorites": [],
+    "createdAt": "2025-12-11T07:18:04.706Z",
+    "updatedAt": "2025-12-11T07:19:54.165Z"
+  },
+  {
+    "id": "d796c9c6-b60e-44bc-9c01-e36702e9be0e",
+    "name": "newuser",
+    "email": "6666@emample.com",
+    "password": "$2a$10$CBgmo4W9XkEc53O9YYhHmuttwL8nI4.8v4X/CIg37VTjKBE2XovS2",
+    "role": "user",
+    "cart": [],
+    "favorites": [],
+    "createdAt": "2025-12-11T14:48:09.336Z",
+    "updatedAt": "2025-12-11T14:48:09.336Z"
+  }
+]

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout & Payment - Super NiuBi Market</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="js/api.js"></script>
+    <style>
+        /* Unified black background theme */
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:#0a0a0a;color:#e0e0e0;font-family:"Microsoft YaHei",Arial,sans-serif;min-height:100vh;}
+        .checkout-main{padding:20px;background:#0a0a0a;}
+        .checkout-layout{display:flex;justify-content:center;max-width:1200px;margin:20px auto;gap:30px;}
+        .checkout-form-section{flex-grow:1;max-width:700px;}
+        .checkout-summary-section{width:350px;min-width:300px;height:fit-content;position:sticky;top:20px;}
+        .checkout-block{background:#181818;padding:25px;border-radius:8px;margin-bottom:25px;box-shadow:0 0 15px rgba(0,0,0,0.3);border:1px solid #333;}
+        .checkout-block h2{color:#00FFFF;border-bottom:1px solid #333;padding-bottom:10px;margin-bottom:20px;font-size:1.5em;}
+        .checkout-form-section label{display:block;margin-top:15px;margin-bottom:5px;color:#00FFFF;}
+        .checkout-form-section input[type="text"],
+        .checkout-form-section input[type="tel"],
+        .checkout-form-section textarea,
+        .checkout-form-section select{
+            width:100%;padding:10px 12px;border:1px solid #00FFFF;border-radius:5px;background:#111;color:#00FFFF;box-sizing:border-box;font-size:1em;
+        }
+        .payment-options{display:flex;gap:15px;flex-wrap:wrap;}
+        .payment-option{flex-grow:1;text-align:center;padding:15px 10px;border:2px solid #333;border-radius:5px;cursor:pointer;transition:.3s;background:#222;color:#00FFFF;}
+        .payment-option input[type="radio"]{display:none;}
+        .payment-option.active{border-color:#FF4700;background:#381a10;}
+        .payment-option:hover{border-color:#00FFFF;}
+        .item-line{display:flex;justify-content:space-between;padding:5px 0;font-size:0.9em;color:#00FFFF;}
+        .summary-details{padding:15px 0;border-top:1px solid #333;border-bottom:1px solid #333;margin:15px 0;}
+        .summary-row{display:flex;justify-content:space-between;padding:8px 0;color:#00FFFF;}
+        .final-total-box{font-size:1.8em;padding-top:15px;color:#00FFFF;}
+        #checkoutTotal{color:#FF4700;}
+        .final-tip{text-align:center;font-size:0.8em;color:#666;margin-top:15px;}
+        .btn-checkout{width:100%;background:#00FFFF;color:black;padding:18px;border:none;border-radius:12px;font-size:1.6em;font-weight:bold;cursor:pointer;margin-top:20px;transition:.3s;}
+        .btn-checkout:hover{background:#00ffff;transform:translateY(-5px);box-shadow:0 15px 35px rgba(0,255,255,.4);}
+        .btn-checkout:disabled{background:#006666;cursor:not-allowed;transform:none;}
+        
+        /* Payment QR Code Modal Styles */
+        .payment-modal{
+            display:none;position:fixed;top:0;left:0;width:100%;height:100%;
+            background:rgba(0,0,0,0.9);z-index:9999;justify-content:center;align-items:center;
+        }
+        .payment-modal.show{display:flex;}
+        .payment-content{
+            background:#181818;padding:40px;border-radius:20px;text-align:center;
+            border:2px solid #00FFFF;box-shadow:0 0 50px rgba(0,255,255,0.3);
+            max-width:400px;width:90%;
+        }
+        .payment-content h3{color:#00FFFF;margin-bottom:20px;font-size:1.8em;}
+        .qr-code{
+            width:250px;height:250px;margin:20px auto;
+            border:3px solid #00FFFF;border-radius:15px;
+            background:#fff;display:flex;align-items:center;justify-content:center;
+        }
+        .qr-code img{width:100%;height:100%;object-fit:contain;}
+        .payment-info{margin:20px 0;color:#ccc;}
+        .payment-amount{font-size:2em;color:#FF4700;font-weight:bold;margin:15px 0;}
+        .payment-buttons{display:flex;gap:15px;margin-top:30px;}
+        .payment-buttons button{
+            flex:1;padding:12px;border:none;border-radius:10px;
+            font-weight:bold;cursor:pointer;transition:.3s;
+        }
+        .btn-confirm{background:#00FFFF;color:black;}
+        .btn-cancel{background:#555;color:white;}
+        .btn-confirm:hover{background:#00cccc;}
+        .btn-cancel:hover{background:#777;}
+        
+        /* Payment Status Animation */
+        .payment-status{
+            margin:15px 0;padding:10px;border-radius:8px;
+            background:rgba(0,255,255,0.1);border:1px solid #00FFFF;
+            color:#00FFFF;text-align:center;
+        }
+        
+        /* Payment Method Icons */
+        .payment-option{position:relative;}
+        .payment-option::before{
+            content:'💳';font-size:1.2em;margin-right:8px;
+        }
+        .payment-option:has(input[value="wechat"])::before{content:'💬';}
+        .payment-option:has(input[value="alipay"])::before{content:'💰';}
+        .payment-option:has(input[value="card"])::before{content:'💳';}
+        .main-header{background:rgba(15,15,15,0.95);backdrop-filter:blur(10px);padding:15px 5%;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1000;border-bottom:1px solid #333;}
+        .logo a{color:#00FFFF;font-size:24px;font-weight:bold;text-decoration:none;}
+        .main-nav ul{display:flex;gap:50px;list-style:none;}
+        .main-nav a{color:#e0e0e0;text-decoration:none;}
+        .main-nav a:hover{color:#00FFFF;}
+        .user-actions a{margin-left:25px;color:#00FFFF;}
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <div class="logo"><a href="index.html">Super NiuBi Market</a></div>
+    <nav class="main-nav">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">All Products</a></li>
+            <li><a href="about.html">About Us</a></li>
+        </ul>
+    </nav>
+    <div class="user-actions">
+        <a href="cart.html">Cart (<span id="cartCount">0</span>)</a>
+    </div>
+</header>
+
+<main class="checkout-main">
+    <h1 style="text-align:center;margin:40px 0;color:#00FFFF;font-size:2.8em;">Order Checkout & Confirmation</h1>
+
+    <div class="checkout-layout">
+
+        <!-- Left Form Section -->
+        <div class="checkout-form-section">
+
+            <div class="checkout-block">
+                <h2>Shipping Address</h2>
+                <label>Recipient Name</label>
+                <input type="text" id="recipientName" required placeholder="Enter name">
+                <label>Contact Phone</label>
+                <input type="tel" id="recipientPhone" required placeholder="13800138000">
+                <label>Detailed Address</label>
+                <textarea id="recipientAddress" rows="3" required placeholder="Province/City/District + Street Address"></textarea>
+            </div>
+
+            <div class="checkout-block">
+                <h2>Payment Method</h2>
+                <div class="payment-options">
+                    <label class="payment-option active">
+                        <input type="radio" name="payment" value="wechat" checked> WeChat Pay
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment" value="alipay"> Alipay
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment" value="card"> Bank Card
+                    </label>
+                </div>
+            </div>
+
+            <div class="checkout-block">
+                <h2>Delivery Method</h2>
+                <select id="deliveryMethod">
+                    <option value="standard">Standard Shipping (Free)</option>
+                    <option value="express">Express Shipping (+¥20)</option>
+                </select>
+                <label style="margin-top:20px;">Order Notes (Optional)</label>
+                <textarea id="orderNotes" rows="2" placeholder="Enter special requirements if any"></textarea>
+            </div>
+
+        </div>
+
+        <!-- Right Order Summary Section -->
+        <div class="checkout-summary-section checkout-block">
+            <h2>Order Summary</h2>
+            <div id="orderItemsList" style="margin:15px 0; max-height:300px; overflow-y:auto;">
+                <p style="color:#999;text-align:center;">Loading...</p>
+            </div>
+
+            <div class="summary-details">
+                <div class="summary-row"><span>Subtotal</span><span id="subtotal">¥ 0.00</span></div>
+                <div class="summary-row"><span>Shipping</span><span id="shippingFee">¥ 0.00</span></div>
+                <div class="summary-row"><span>Discount</span><span>¥ 0.00</span></div>
+            </div>
+
+            <div class="final-total-box">
+                <span>Total Amount</span>
+                <span id="checkoutTotal" style="color:#FF4700;font-size:1.6em;">¥ 0.00</span>
+            </div>
+
+            <button id="placeOrderButton" class="btn-checkout">Submit Order & Pay</button>
+            <p class="final-tip">By clicking, you agree to the Terms of Service</p>
+        </div>
+    </div>
+</main>
+
+<!-- Payment QR Code Modal -->
+<div class="payment-modal" id="paymentModal">
+    <div class="payment-content">
+        <h3 id="paymentTitle">WeChat Pay</h3>
+        <div class="qr-code">
+            <img id="paymentQR" src="images/wechatQRcode.jpg" alt="Payment QR Code">
+        </div>
+        <div class="payment-info">
+            <p>Please scan the QR code with <span id="paymentMethod">WeChat</span> to complete payment</p>
+            <div class="payment-amount" id="paymentAmount">¥ 0.00</div>
+            <div class="payment-status" id="paymentStatus">
+                Waiting for payment... <span id="paymentTimer">5:00</span>
+            </div>
+        </div>
+        <div class="payment-buttons">
+            <button class="btn-confirm" id="confirmPayment">Payment Complete</button>
+            <button class="btn-cancel" id="cancelPayment">Cancel Payment</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== Complete Scripts ==================== -->
+<script>
+// ==================== 通用登录态处理 ====================
+let currentUser = null;
+
+try {
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    if (token && userStr) currentUser = JSON.parse(userStr);
+} catch (e) {}
+
+const privatePages = ['cart.html','checkout.html','seller_dashboard.html'];
+if (privatePages.includes(location.pathname.split('/').pop()) && !currentUser) {
+    alert('请先登录');
+    location.href = 'login.html';
+}
+
+function updateNav() {
+    if (currentUser) {
+        document.querySelector('.user-actions').innerHTML = `
+            <span style="color:#00FFFF;">欢迎，${currentUser.name}</span>
+            <a href="cart.html">购物车 (<span id="cartCount">0</span>)</a>
+            <a href="#" id="logoutBtn" style="color:#FF4700;margin-left:15px;">退出</a>
+        `;
+        document.getElementById('logoutBtn')?.addEventListener('click', e => {
+            e.preventDefault();
+            localStorage.clear();
+            location.href = 'index.html';
+        });
+    }
+}
+
+async function updateCartCount() {
+    if (!currentUser) return;
+    try {
+        const cart = await API.get('/user/cart');
+        const count = cart.reduce((s,i) => s + i.quantity, 0);
+        document.querySelectorAll('#cartCount').forEach(el => el.textContent = count);
+    } catch (err) {}
+}
+
+// ==================== 结算核心逻辑 ====================
+let cartData = [];
+
+async function loadCheckoutData() {
+    try {
+        cartData = await API.get('/user/cart');
+        if (cartData.length === 0) {
+            alert('购物车为空！');
+            location.href = 'cart.html';
+            return;
+        }
+        renderOrderItems();
+        calculateTotal();
+    } catch (err) {
+        alert('加载失败，请刷新重试');
+    }
+}
+
+function renderOrderItems() {
+    const $list = $('#orderItemsList');
+    $list.empty();
+    let subtotal = 0;
+    cartData.forEach(item => {
+        const total = item.price * item.quantity;
+        subtotal += total;
+        $list.append(`
+            <div class="item-line">
+                <span>${item.name} × ${item.quantity}</span>
+                <span>¥ ${total.toFixed(2)}</span>
+            </div>
+        `);
+    });
+    $('#subtotal').text(`¥ ${subtotal.toFixed(2)}`);
+}
+
+function calculateTotal() {
+    const subtotal = parseFloat($('#subtotal').text().replace('¥ ', ''));
+    const delivery = $('#deliveryMethod').val() === 'express' ? 20 : 0;
+    const total = subtotal + delivery;
+    $('#shippingFee').text(`¥ ${delivery.toFixed(2)}`);
+    $('#checkoutTotal').text(`¥ ${total.toFixed(2)}`);
+}
+
+$('#deliveryMethod').change(calculateTotal);
+
+// 支付方式切换
+$('.payment-option').click(function() {
+    $('.payment-option').removeClass('active');
+    $(this).addClass('active');
+    $(this).find('input').prop('checked', true);
+});
+
+// 支付倒计时
+let paymentTimer = null;
+
+function startPaymentTimer() {
+    let timeLeft = 300; // 5分钟
+    const timerElement = $('#paymentTimer');
+    
+    paymentTimer = setInterval(() => {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerElement.text(`${minutes}:${seconds.toString().padStart(2, '0')}`);
+        
+        if (timeLeft <= 0) {
+            clearInterval(paymentTimer);
+            $('#paymentStatus').text('支付超时，请重新下单').css('color', '#FF4700');
+        }
+        timeLeft--;
+    }, 1000);
+}
+
+function stopPaymentTimer() {
+    if (paymentTimer) {
+        clearInterval(paymentTimer);
+        paymentTimer = null;
+    }
+}
+
+// 显示支付二维码
+function showPaymentQR(paymentMethod, amount) {
+    const modal = $('#paymentModal');
+    const qrImages = {
+        'FPS': 'images/FPS.jpg',
+        'wechat': 'images/wechatpay1.jpg', // 暂时使用微信二维码，可以后续替换
+        'card': 'images/wechatQRcode.jpg'   // 暂时使用微信二维码，可以后续替换
+    };
+    
+    const paymentNames = {
+        'wechat': '微信支付',
+        'alipay': '支付宝',
+        'card': '银行卡支付'
+    };
+    
+    $('#paymentTitle').text(paymentNames[paymentMethod]);
+    $('#paymentMethod').text(paymentNames[paymentMethod].replace('支付', ''));
+    $('#paymentQR').attr('src', qrImages[paymentMethod]);
+    $('#paymentAmount').text(`¥ ${amount}`);
+    $('#paymentStatus').text('等待支付中...').css('color', '#00FFFF');
+    $('#paymentTimer').text('5:00');
+    
+    modal.addClass('show');
+    startPaymentTimer();
+}
+
+// 关闭支付弹窗
+$('#cancelPayment').click(function() {
+    stopPaymentTimer();
+    $('#paymentModal').removeClass('show');
+    $('#placeOrderButton').prop('disabled', false).text('提交订单并支付');
+});
+
+// 确认支付完成
+$('#confirmPayment').click(async function() {
+    stopPaymentTimer();
+    $('#paymentModal').removeClass('show');
+    
+    // 显示支付成功动画
+    const btn = $(this);
+    btn.prop('disabled', true).text('处理中...');
+    
+    try {
+        const name = $('#recipientName').val().trim();
+        const phone = $('#recipientPhone').val().trim();
+        const address = $('#recipientAddress').val().trim();
+        const paymentMethod = $('input[name="payment"]:checked').val();
+        const deliveryMethod = $('#deliveryMethod').val();
+        const notes = $('#orderNotes').val();
+
+        const res = await API.post('/orders/place-order', {
+            address: `${name},${phone},${address}`,
+            paymentMethod,
+            deliveryMethod,
+            notes
+        });
+        
+        alert(`🎉 支付成功！\n订单号：${res.orderNumber}\n感谢您的购买！`);
+        
+        // 清空本地购物车缓存
+        localStorage.removeItem('cart');
+        
+        location.href = 'index.html';
+    } catch (err) {
+        console.error('下单错误:', err);
+        alert('❌ 下单失败：' + (err.message || '网络错误，请重试'));
+        $('#placeOrderButton').prop('disabled', false).text('提交订单并支付');
+        btn.prop('disabled', false).text('支付完成');
+    }
+});
+
+$('#placeOrderButton').click(async function() {
+    const btn = $(this);
+    if (btn.prop('disabled')) return;
+
+    const name = $('#recipientName').val().trim();
+    const phone = $('#recipientPhone').val().trim();
+    const address = $('#recipientAddress').val().trim();
+    const paymentMethod = $('input[name="payment"]:checked').val();
+
+    if (!name || !phone || !address) {
+        alert('请填写完整收货信息');
+        return;
+    }
+
+    btn.prop('disabled', true).text('生成支付码...');
+    
+    // 获取总金额
+    const totalAmount = $('#checkoutTotal').text();
+    
+    // 显示支付二维码
+    showPaymentQR(paymentMethod, totalAmount.replace('¥ ', ''));
+});
+
+$(document).ready(function() {
+    updateNav();
+    updateCartCount();
+    loadCheckoutData();
+});
+</script>
+
+</body>
+</html>

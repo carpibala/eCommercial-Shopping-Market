@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>After-Sales Service - TechStore</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="js/api.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .main-header {
+            background: rgba(15,15,15,0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #333;
+        }
+        .logo a { color:#00FFFF; font-size:1.8em; font-weight:bold; text-decoration:none; }
+        .main-nav ul { display:flex; list-style:none; gap:30px; }
+        .main-nav a { color:#ccc; transition:0.3s; text-decoration:none; }
+        .main-nav a:hover, .main-nav a.active { color:#00FFFF; }
+        .user-actions a { margin-left:15px; color:#aaa; text-decoration:none; }
+        .user-actions span { color:#00FFFF; }
+        #logoutBtn { color:#FF4700 !important; }
+        .page-title {
+            text-align:center;
+            font-size:3em;
+            margin:60px 0 20px;
+            color:#f0f0f0;
+            position:relative;
+        }
+        .page-title::after {
+            content:'';
+            position:absolute;
+            left:50%; bottom:-18px;
+            transform:translateX(-50%);
+            width:140px; height:6px;
+            background:#00FFFF;
+            border-radius:3px;
+            box-shadow:0 0 25px #00FFFF;
+        }
+    </style>
+</head>
+<body>
+
+<header class="main-header">
+    <div class="logo"><a href="index.html">Super Niubi Market</a></div>
+    <nav class="main-nav">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="products.html">Products</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="help_aftersales.html" style="color:#00FFFF;">After-Sales</a></li>
+        </ul>
+    </nav>
+    <div class="user-actions">
+        <!-- Will be replaced by JS below -->
+        <a href="register.html">Register</a> / <a href="login.html">Login</a>
+        <a href="cart.html">Cart (<span id="cartCount">0</span>)</a>
+    </div>
+</header>
+
+<main>
+    <h1 class="page-title">After-sales service</h1>
+    <div class="container" style="max-width:900px;margin:60px auto;text-align:center;">
+        <p style="font-size:1.5em;color:#ccc;line-height:2.5;">
+            7-day no reason returns · 15-day exchanges · 1-year warranty<br><br>
+            If any quality issues arise, we offer free shipping for returns and exchanges.<br>
+            If you have any questions, please feel free to contact us.
+        </p>
+        <div style="margin:50px 0;">
+            <p style="font-size:2em;color:#00FFFF;margin-bottom:20px;">Official customer service email</p>
+            <a href="mailto:support@uowtech.hk" style="color:#FF4700;font-size:2.2em;text-decoration:none;">
+                h3368600435@163.com
+            </a>
+        </div>
+        <p style="color:#888;margin-top:40px;">
+            Working hours: Monday to Friday 9:00 AM - 6:00 PM (Hong Kong Time)
+        </p>
+    </div>
+</main>
+
+<!-- 通用登录态脚本（所有页面都加这部分） -->
+<script>
+// 读取登录状态
+let currentUser = null;
+try {
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+    if (token && userStr) {
+        currentUser = JSON.parse(userStr);
+    }
+} catch (e) {}
+
+// 更新导航栏
+function updateNav() {
+    const $actions = $('.user-actions');
+    if (currentUser) {
+        $actions.html(`
+            <span>欢迎，${currentUser.name}</span>
+            <a href="cart.html">购物车 (<span id="cartCount">0</span>)</a>
+            <a href="#" id="logoutBtn">退出</a>
+        `);
+        $('#logoutBtn').click(e => {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            location.reload();
+        });
+    } else {
+        $actions.html(`
+            <a href="register.html">Register</a> / <a href="login.html">Login</a>
+            <a href="cart.html">Shopping Cart (<span id="cartCount">0</span>)</a>
+        `);
+    }
+}
+
+// 更新购物车数量（已登录才请求）
+async function updateCartCount() {
+    if (!currentUser) {
+        $('#cartCount').text('0');
+        return;
+    }
+    try {
+        const cart = await API.get('/user/cart');
+        const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+        $('#cartCount').text(count);
+    } catch (err) {
+        $('#cartCount').text('0');
+    }
+}
+
+// 页面加载完执行
+$(document).ready(function() {
+    updateNav();
+    updateCartCount();
+});
+</script>
+
+</body>
+</html>

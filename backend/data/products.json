@@ -1,0 +1,184 @@
+[
+  {
+    "id": "1b53abf5-6570-46a8-a19e-960a83792e7e",
+    "name": "Headphone",
+    "description": "111",
+    "price": 122,
+    "originalPrice": 158.6,
+    "category": "headsets",
+    "images": [
+      {
+        "url": "/uploads/aaae156f6af89dcebdb28d37aa04d762",
+        "alt": "耳机"
+      }
+    ],
+    "stock": 12,
+    "specifications": {},
+    "sellerId": "cca63967-b566-4016-8646-41a5445742af",
+    "sellerName": "testing",
+    "status": "draft",
+    "salesCount": 0,
+    "averageRating": 0,
+    "reviewCount": 0,
+    "tags": [],
+    "isFeatured": false,
+    "createdAt": "2025-12-11T02:32:38.382Z",
+    "updatedAt": "2025-12-11T14:41:47.486Z"
+  },
+  {
+    "id": "0a523129-e7e9-44cc-aacd-68af911a0c1f",
+    "name": "Mouse",
+    "description": "111",
+    "price": 10,
+    "originalPrice": 130,
+    "category": "mouses",
+    "images": [
+      {
+        "url": "/uploads/26f26c4472838cbc8033da74a1b4e9bc",
+        "alt": "鼠标"
+      }
+    ],
+    "stock": 12,
+    "specifications": {},
+    "sellerId": "cca63967-b566-4016-8646-41a5445742af",
+    "sellerName": "testing",
+    "status": "published",
+    "salesCount": 0,
+    "averageRating": 0,
+    "reviewCount": 0,
+    "tags": [],
+    "isFeatured": false,
+    "createdAt": "2025-12-11T02:45:46.075Z",
+    "updatedAt": "2025-12-11T14:42:55.412Z"
+  },
+  {
+    "id": "7f585ddd-088c-488d-b2b6-b721fad3c858",
+    "name": "Airpods",
+    "description": "123",
+    "price": 111,
+    "originalPrice": 144.3,
+    "category": "others",
+    "images": [
+      {
+        "url": "/uploads/4ab182db5736ac1335115707750d24ac",
+        "alt": "nim"
+      }
+    ],
+    "stock": 11,
+    "specifications": {},
+    "sellerId": "cca63967-b566-4016-8646-41a5445742af",
+    "sellerName": "testing",
+    "status": "published",
+    "salesCount": 0,
+    "averageRating": 0,
+    "reviewCount": 0,
+    "tags": [],
+    "isFeatured": false,
+    "createdAt": "2025-12-11T05:25:15.253Z",
+    "updatedAt": "2025-12-11T05:25:19.941Z"
+  },
+  {
+    "id": "f605b5a9-0820-4f38-8b71-45d9a655fc18",
+    "name": "機械革命",
+    "description": "super famous",
+    "price": 5999,
+    "originalPrice": 7798.7,
+    "category": "others",
+    "images": [
+      {
+        "url": "/uploads/a9a9a3c01f79e858b6a95bace392275e",
+        "alt": "機械革命"
+      }
+    ],
+    "stock": 10,
+    "specifications": {},
+    "sellerId": "cca63967-b566-4016-8646-41a5445742af",
+    "sellerName": "testing",
+    "status": "published",
+    "salesCount": 0,
+    "averageRating": 0,
+    "reviewCount": 0,
+    "tags": [],
+    "isFeatured": false,
+    "createdAt": "2025-12-11T05:58:54.326Z",
+    "updatedAt": "2025-12-11T06:41:23.088Z"
+  },
+  {
+    "id": "adb468dc-d3e1-4a63-ba73-b36a6ef777e6",
+    "name": "iPhone 17 PRO MAX (512G)",
+    "description": "",
+    "price": 11888,
+    "originalPrice": 15454.4,
+    "category": "others",
+    "images": [
+      {
+        "url": "/uploads/b7d79bff8af0121f3284c47940048efe",
+        "alt": "iPhone 17 PRO MAX (512G)"
+      }
+    ],
+    "stock": 20,
+    "specifications": {},
+    "sellerId": "cca63967-b566-4016-8646-41a5445742af",
+    "sellerName": "testing",
+    "status": "published",
+    "salesCount": 0,
+    "averageRating": 0,
+    "reviewCount": 0,
+    "tags": [],
+    "isFeatured": false,
+    "createdAt": "2025-12-11T06:07:00.506Z",
+    "updatedAt": "2025-12-11T06:07:00.506Z"
+  },
+  {
+    "id": "386e53ae-27c1-41ac-a697-e80c28c2523b",
+    "name": "key board",
+    "description": "123",
+    "price": 599,
+    "originalPrice": 778.7,
+    "category": "keyboards",
+    "images": [
+      {
+        "url": "/uploads/e40446bda74ffe53994a1fffbbabcd97",
+        "alt": "key board"
+      }
+    ],
+    "stock": 10,
+    "specifications": {},
+    "sellerId": "b58b419c-71eb-4209-bfb2-744f60945572",
+    "sellerName": "shop2",
+    "status": "published",
+    "salesCount": 0,
+    "averageRating": 0,
+    "reviewCount": 0,
+    "tags": [],
+    "isFeatured": false,
+    "createdAt": "2025-12-11T07:17:15.219Z",
+    "updatedAt": "2025-12-11T07:17:15.219Z"
+  },
+  {
+    "id": "4875078c-b511-440f-b4c0-895d4959994f",
+    "name": "Huawei",
+    "description": "加油Huawei，加油China",
+    "price": 8999,
+    "originalPrice": 11698.7,
+    "category": "others",
+    "images": [
+      {
+        "url": "/uploads/fbc2ddb36340b431bc30a74ba0fe7997",
+        "alt": "Huawei"
+      }
+    ],
+    "stock": 5,
+    "specifications": {},
+    "sellerId": "cca63967-b566-4016-8646-41a5445742af",
+    "sellerName": "testing",
+    "status": "published",
+    "salesCount": 0,
+    "averageRating": 0,
+    "reviewCount": 0,
+    "tags": [],
+    "isFeatured": false,
+    "createdAt": "2025-12-11T14:45:21.062Z",
+    "updatedAt": "2025-12-11T14:45:21.062Z"
+  }
+]
